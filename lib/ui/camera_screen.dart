@@ -8,7 +8,14 @@ import 'package:university_project_qr_scanner/bloc/scan_bloc.dart';
 import 'package:university_project_qr_scanner/data/code_scan_result.dart';
 import 'package:university_project_qr_scanner/data/qr_code_scan_result.dart';
 
-class CameraScreen extends StatelessWidget {
+class CameraScreen extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _CameraScreenState();
+  }
+}
+
+class _CameraScreenState extends State {
   final _cameraKitController = CameraKitController();
   var _permissionDenied = false;
 
@@ -43,11 +50,11 @@ class CameraScreen extends StatelessWidget {
         final result = snapshot.data;
         if (result != null && result is QRCodeScanResult) {
           final snackBar = SnackBar(
-              content: Text("$result"),
-              action: SnackBarAction(
-                label: "Open",
-                onPressed: () => bloc.launchURLScanResult(result),
-              ),
+            content: Text("$result"),
+            action: SnackBarAction(
+              label: "Open",
+              onPressed: () => bloc.launchURLScanResult(result),
+            ),
           );
           WidgetsBinding.instance.addPostFrameCallback((_)
           => Scaffold.of(context).showSnackBar(snackBar));
@@ -67,7 +74,7 @@ class CameraScreen extends StatelessWidget {
       previewFlashMode: CameraFlashMode.off,
       useCamera2API: true,
       onPermissionDenied: () {
-        _permissionDenied = true;
+        setState(() => _permissionDenied = true);
       },
       onBarcodeRead: (code) {
         final data = code as String;
@@ -83,15 +90,27 @@ class CameraScreen extends StatelessWidget {
   Widget _buildPermissionDeniedView(BuildContext context) {
     return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           Text("Camera permission denied."),
           RaisedButton.icon(
-              onPressed: () => _permissionDenied = false,
+              onPressed: () {
+                dispose();
+                setState(() {
+                  _permissionDenied = false;
+                });
+              },
               icon: Icon(Icons.refresh),
               label: Text("Retry")
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _cameraKitController.closeCamera();
+    super.dispose();
   }
 }

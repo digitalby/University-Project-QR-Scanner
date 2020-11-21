@@ -31,6 +31,10 @@ class ScanBloc implements Bloc {
     _resultController.sink.add(result);
   }
 
+  void onCameraPermissionDenied() {
+    _resultController.close();
+  }
+
   void launchURLScanResult(CodeScanResult result) async {
     if (result == null) {
       return;
