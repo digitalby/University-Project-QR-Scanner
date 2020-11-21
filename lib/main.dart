@@ -4,6 +4,7 @@ import 'package:university_project_qr_scanner/bloc/bloc_provider.dart';
 import 'package:university_project_qr_scanner/bloc/history_bloc.dart';
 import 'package:university_project_qr_scanner/bloc/scan_bloc.dart';
 import 'package:university_project_qr_scanner/ui/camera_screen.dart';
+import 'package:university_project_qr_scanner/ui/history_drawer.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,8 +26,11 @@ class MyApp extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
           ),
           home: Scaffold(
-            appBar: AppBar(title: Text('QR Scanner')),
+            appBar: AppBar(
+              title: Text('QR Scanner'),
+            ),
             body: CameraScreen(),
+            drawer: HistoryDrawer(),
           ),
         ),
       ),

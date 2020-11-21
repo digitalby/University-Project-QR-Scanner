@@ -4,6 +4,7 @@ import 'package:camerakit/CameraKitController.dart';
 import 'package:camerakit/CameraKitView.dart';
 import 'package:flutter/material.dart';
 import 'package:university_project_qr_scanner/bloc/bloc_provider.dart';
+import 'package:university_project_qr_scanner/bloc/history_bloc.dart';
 import 'package:university_project_qr_scanner/bloc/scan_bloc.dart';
 import 'package:university_project_qr_scanner/data/code_scan_result.dart';
 import 'package:university_project_qr_scanner/data/qr_code_scan_result.dart';
@@ -53,7 +54,11 @@ class _CameraScreenState extends State {
             content: Text("$result"),
             action: SnackBarAction(
               label: "Open",
-              onPressed: () => bloc.launchURLScanResult(result),
+              onPressed: () {
+                final historyBloc = BlocProvider.of<HistoryBloc>(context);
+                historyBloc.addResult(result);
+                bloc.launchURLForScanResult(result);
+              },
             ),
           );
           WidgetsBinding.instance.addPostFrameCallback((_)

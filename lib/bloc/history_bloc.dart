@@ -9,20 +9,35 @@ class HistoryBloc implements Bloc {
   List<CodeScanResult> get results => _results;
 
   final _controller = StreamController<List<CodeScanResult>>.broadcast();
-  Stream<List<CodeScanResult>> get favoritesStream => _controller.stream;
+  Stream<List<CodeScanResult>> get historyStream => _controller.stream;
 
   void fetchResults() {
-    final results = <CodeScanResult>[];
+    if (_results == null) {
+      _initResults();
+    }
     _controller.sink.add(results);
   }
 
   void addResult(CodeScanResult result) {
-    log("Add result $result");
+    if (_results == null) {
+      _initResults();
+    }
+    _results.add(result);
     _controller.sink.add(results);
   }
 
   void removeResult(CodeScanResult result) {
-    log("Remove result $result");
+    _results.remove(result);
+    _controller.sink.add(results);
+  }
+
+  void removeAllResults() {
+    _results = [];
+    _controller.sink.add(results);
+  }
+
+  void _initResults() {
+    final results = <CodeScanResult>[];
     _controller.sink.add(results);
   }
 
@@ -30,4 +45,5 @@ class HistoryBloc implements Bloc {
   void dispose() {
     _controller.close();
   }
+
 }

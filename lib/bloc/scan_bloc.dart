@@ -10,7 +10,7 @@ class ScanBloc implements Bloc {
   CodeScanResult _result;
   CodeScanResult get scanResult => _result;
 
-  final _resultController = StreamController<CodeScanResult>();
+  final _resultController = StreamController<CodeScanResult>.broadcast();
   final _throttling = Throttling(duration: Duration(seconds: 1));
   final _throttlingSameQRCode = Throttling(duration: Duration(seconds: 5));
 
@@ -35,13 +35,13 @@ class ScanBloc implements Bloc {
     _resultController.close();
   }
 
-  void launchURLScanResult(CodeScanResult result) async {
+  void launchURLForScanResult(CodeScanResult result) async {
     if (result == null) {
       return;
     }
     final url = utf8.decoder.convert(result.data);
     if (await canLaunch(url)) {
-      await launch(url).whenComplete(() => print("complete"));
+      await launch(url);
     }
   }
 
