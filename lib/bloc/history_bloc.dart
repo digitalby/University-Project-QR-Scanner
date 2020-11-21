@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:university_project_qr_scanner/bloc/bloc.dart';
 import 'package:university_project_qr_scanner/data/code_scan_result.dart';
+import 'package:university_project_qr_scanner/data/db.dart';
+import 'package:university_project_qr_scanner/data/qr_code_scan_result.dart';
 
 class HistoryBloc implements Bloc {
   var _results = <CodeScanResult>[];
@@ -11,34 +12,28 @@ class HistoryBloc implements Bloc {
   final _controller = StreamController<List<CodeScanResult>>.broadcast();
   Stream<List<CodeScanResult>> get historyStream => _controller.stream;
 
-  void fetchResults() {
-    if (_results == null) {
-      _initResults();
-    }
+  void fetchResults() async {
+    final results = await _queryResults();
     _controller.sink.add(results);
   }
 
-  void addResult(CodeScanResult result) {
-    if (_results == null) {
-      _initResults();
-    }
-    _results.add(result);
-    _controller.sink.add(results);
+  Future<List<CodeScanResult>> _queryResults() {
+    return DatabaseProvider.shared.queryCodeScanResultsFromDatabase();
   }
 
-  void removeResult(CodeScanResult result) {
-    _results.remove(result);
-    _controller.sink.add(results);
+  void addQRResult(QRCodeScanResult result) async {
+    await DatabaseProvider.shared.addQRCodeScanResultToDatabase(result);
+    fetchResults();
   }
 
-  void removeAllResults() {
-    _results = [];
-    _controller.sink.add(results);
+  void removeResult(QRCodeScanResult result) async {
+    await DatabaseProvider.shared.removeQRCodeScanResultFromDatabase(result);
+    fetchResults();
   }
 
-  void _initResults() {
-    final results = <CodeScanResult>[];
-    _controller.sink.add(results);
+  void removeAllResults() async {
+    await DatabaseProvider.shared.removeAllQRCodeScanResultsFromDatabase();
+    fetchResults();
   }
 
   @override

@@ -21,7 +21,7 @@ class _HistoryDrawerState extends State {
 
   Widget _buildStreamBuilder(BuildContext context) {
     final bloc = BlocProvider.of<HistoryBloc>(context);
-
+    bloc.fetchResults();
     return StreamBuilder(
       stream: bloc.historyStream,
       builder: (context, snapshot) {

@@ -56,7 +56,7 @@ class _CameraScreenState extends State {
               label: "Open",
               onPressed: () {
                 final historyBloc = BlocProvider.of<HistoryBloc>(context);
-                historyBloc.addResult(result);
+                historyBloc.addQRResult(result);
                 bloc.launchURLForScanResult(result);
               },
             ),
