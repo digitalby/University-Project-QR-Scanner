@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:camerakit/CameraKitController.dart';
 import 'package:camerakit/CameraKitView.dart';
 import 'package:flutter/material.dart';
@@ -8,9 +10,14 @@ import 'package:university_project_qr_scanner/data/qr_code_scan_result.dart';
 
 class CameraScreen extends StatelessWidget {
   final _cameraKitController = CameraKitController();
+  var _permissionDenied = false;
+
 
   @override
   Widget build(BuildContext context) {
+    if (_permissionDenied) {
+      return _buildPermissionDeniedView(context);
+    }
     return Stack(
       children: [
         Container(
@@ -33,17 +40,25 @@ class CameraScreen extends StatelessWidget {
       stream: bloc.resultStream,
       initialData: bloc.scanResult,
       builder: (context, snapshot) {
-        // final result = snapshot.data;
-        // if (result != null && result is QRCodeScanResult) {
-        //
-        // }
+        final result = snapshot.data;
+        if (result != null && result is QRCodeScanResult) {
+          final snackBar = SnackBar(
+              content: Text("$result"),
+              action: SnackBarAction(
+                label: "Open",
+                onPressed: () => bloc.launchURLScanResult(result),
+              ),
+          );
+          WidgetsBinding.instance.addPostFrameCallback((_)
+          => Scaffold.of(context).showSnackBar(snackBar));
+        }
 
-        return _buildCameraView();
+        return _buildCameraView(context);
       },
     );
   }
 
-  Widget _buildCameraView() {
+  Widget _buildCameraView(BuildContext context) {
     return CameraKitView(
       cameraKitController: _cameraKitController,
       hasBarcodeReader: true,
@@ -52,11 +67,31 @@ class CameraScreen extends StatelessWidget {
       previewFlashMode: CameraFlashMode.off,
       useCamera2API: true,
       onPermissionDenied: () {
-        print("Camera permission is denied.");
+        _permissionDenied = true;
       },
       onBarcodeRead: (code) {
-        print("Barcode is read: " + code);
+        final data = code as String;
+        final result = QRCodeScanResult()
+          ..resultTitle = data
+          ..data = utf8.encoder.convert(data)
+          ..date = DateTime.now();
+        BlocProvider.of<ScanBloc>(context).processScanResult(result);
       },
+    );
+  }
+
+  Widget _buildPermissionDeniedView(BuildContext context) {
+    return Center(
+      child: Column(
+        children: <Widget>[
+          Text("Camera permission denied."),
+          RaisedButton.icon(
+              onPressed: () => _permissionDenied = false,
+              icon: Icon(Icons.refresh),
+              label: Text("Retry")
+          ),
+        ],
+      ),
     );
   }
 }
