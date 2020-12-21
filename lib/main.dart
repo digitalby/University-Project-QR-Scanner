@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       child: BlocProvider<ScanBloc>(
         bloc: ScanBloc(),
         child: MaterialApp(
-          title: 'Flutter Demo',
+          title: 'QR Scanner',
           theme: ThemeData(
             primarySwatch: Colors.amber,
             visualDensity: VisualDensity.adaptivePlatformDensity,
